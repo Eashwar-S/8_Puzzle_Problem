@@ -74,14 +74,28 @@ def actionMoveDown(node):
 def compare(mat1, mat2):
     for i in range(0, len(mat1[0])):
         for j in range(0, len(mat1[i])):
-            if mat1[i,j] == mat2[i,j]:
+            if mat1[i,j] != mat2[i,j]:
                 return False
     return True
 
+def solvabilityCheck(inputState):
+    inversions = 0
+    array = []
+    for i in range(0,len(inputState[0])): 
+        for j in range(0,len(inputState[i])):
+            if inputState[i,j] != 0:
+                array.append(inputState[i,j])
+    for i in range(0,len(array)): 
+        for j in range(i+1,len(array)):
+            if array[i] > array[j]:
+                inversions += 1
+    if inversions%2 == 0:
+        return True 
+    return False 
 
 def addNode(node):
     for i in range(0,len(states)):
-        if not compare(node.node_state_i,states[i]):
+        if compare(node.node_state_i,states[i]):
             return False
     else:
         new_node = ListNode(np.zeros((3,3)), 0, 0)
@@ -91,10 +105,11 @@ def addNode(node):
         new_node.parent_node_index_i = node.parent_node_index_i + 1
         node_dictionary[new_node.node_index_i] = new_node
         states.append(new_node.node_state_i)
-        nodes = open('Nodes.txt','w')
+        print(states)
+        nodes = open('nodes.txt','w+')
         data = stateToData(new_node.node_state_i)
         for i in range(0, len(data)):
-            nodes.write(str(int(data[i])) + " ")
+            nodes.writelines(str(int(data[i])))
         nodes.write("\n")
         nodes.close()
         nodes_info = open('NodesInfo1.txt','w')
@@ -107,59 +122,59 @@ def bruteForceSearch(node, goalNode):
     node_list.append(node)
     index = 0
     count = 0
-    intialCheck = node.node_state_i == goalNode
-    if intialCheck.all() == True:
-        print('Input node is goal node.Goal is reached')
-        return
-    while True:
-        index = 0
-        statusLeft, new_node_Left = actionMoveLeft(node_list[index])
-        if statusLeft == True:
-            print(addNode(new_node_Left))
-            if(addNode(new_node_Left)):
-                condition = new_node_Left.node_state_i == goalNode
-                if condition.all() == True:
-                    print('Goal node is reached')
-                    break
-                else:
-                    node_list.append(new_node_Left)
+    if solvabilityCheck(node.node_state_i):
+        intialCheck = node.node_state_i == goalNode
+        if intialCheck.all() == True:
+            print('Input node is goal node.Goal is reached')
+            return
+        while True:
+            index = 0
+            statusLeft, new_node_Left = actionMoveLeft(node_list[index])
+            if statusLeft == True:
+                if(addNode(new_node_Left)):
+                    condition = new_node_Left.node_state_i == goalNode
+                    if condition.all() == True:
+                        print('Goal node is reached')
+                        break
+                    else:
+                        node_list.append(new_node_Left)
 
 
-        statusRight, new_node_Right = actionMoveRight(node_list[index])
-        if statusRight == True:
-            print(addNode(new_node_Left))
-            if(addNode(new_node_Right)):
-                condition = new_node_Right.node_state_i == goalNode
-                if condition.all() == True:
-                    print('Goal node is reached')
-                    break
-                else:
-                    node_list.append(new_node_Right)
+            statusRight, new_node_Right = actionMoveRight(node_list[index])
+            if statusRight == True:
+                if(addNode(new_node_Right)):
+                    condition = new_node_Right.node_state_i == goalNode
+                    if condition.all() == True:
+                        print('Goal node is reached')
+                        break
+                    else:
+                        node_list.append(new_node_Right)
 
-        statusUp, new_node_Up = actionMoveUp(node_list[index])
-        if statusUp == True:
-            print(addNode(new_node_Left))
-            if(addNode(new_node_Up)):
-                condition = new_node_Up.node_state_i == goalNode
-                if condition.all() == True:
-                    print('Goal node is reached')
-                    break
-                else:
-                    node_list.append(new_node_Up)
+            statusUp, new_node_Up = actionMoveUp(node_list[index])
+            if statusUp == True:
+                if(addNode(new_node_Up)):
+                    condition = new_node_Up.node_state_i == goalNode
+                    if condition.all() == True:
+                        print('Goal node is reached')
+                        break
+                    else:
+                        node_list.append(new_node_Up)
 
-        statusDown, new_node_Down = actionMoveDown(node_list[index])
-        if statusDown == True:
-            print(addNode(new_node_Left))
-            if(addNode(new_node_Down)):
-                condition = new_node_Down.node_state_i == goalNode
-                if condition.all() == True:
-                    print('Goal node is reached')
-                    break
-                else:
-                    node_list.append(new_node_Down)
-        node_list.pop(index)
-        # print(count)
-        # count += 1
+            statusDown, new_node_Down = actionMoveDown(node_list[index])
+            if statusDown == True:
+                if(addNode(new_node_Down)):
+                    condition = new_node_Down.node_state_i == goalNode
+                    if condition.all() == True:
+                        print('Goal node is reached')
+                        break
+                    else:
+                        node_list.append(new_node_Down)
+            node_list.pop(index)
+            print(count)
+            count += 1
+    else:
+        print('Given puzzle is not solvable')
+            
         
 
 def stateToData(state):
@@ -179,3 +194,4 @@ states.append(input_node.node_state_i)
 node_dictionary = {}
 node_dictionary[input_node.node_index_i] = input_node  
 bruteForceSearch(input_node, goal)
+print(node_dictionary)
