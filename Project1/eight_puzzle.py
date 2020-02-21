@@ -12,142 +12,155 @@ class ListNode:
         self.parent_node_index_i = parent_node_index_i
     
 
-    def BlankTileLocation(self, state):
-            index = []
-            for i in range(0, len(state[0])):
-                for j in range(0, len(state[i])):
-                    if state[i,j] == 0:
-                        index.append(i)
-                        index.append(j)
-                        break
-            return index
+def BlankTileLocation(state):
+    index = []
+    for i in range(0, len(state[0])):
+        for j in range(0, len(state[i])):
+            if state[i,j] == 0:
+                index.append(i)
+                index.append(j)
+                break
+    return index
 
-    def actionMoveLeft(self):
-        new_node = ListNode(np.zeros((3,3)), 0, 0)
-        new_node.node_state_i = self.node_state_i.copy()
-        index = self.BlankTileLocation(self.node_state_i)
-        if index[1] == 0:
-            return False, self
-        else:
-            swap = new_node.node_state_i[index[0], index[1] - 1]
-            new_node.node_state_i[index[0], index[1] - 1] = new_node.node_state_i[index[0], index[1]]
-            new_node.node_state_i[index[0], index[1]] = swap
-        return True, self
-            
+def actionMoveLeft(node):
+    new_node = ListNode(np.zeros((3,3)), 0, 0)
+    new_node.node_state_i = node.node_state_i.copy()
+    index = BlankTileLocation(node.node_state_i)
+    if index[1] == 0:
+        return False, node
+    else:
+        swap = new_node.node_state_i[index[0], index[1] - 1]
+        new_node.node_state_i[index[0], index[1] - 1] = new_node.node_state_i[index[0], index[1]]
+        new_node.node_state_i[index[0], index[1]] = swap
+    return True, new_node
+        
 
-    def actionMoveRight(self):
-        new_node = ListNode(np.zeros((3,3)), 0, 0)
-        new_node.node_state_i = self.node_state_i.copy()
-        index = self.BlankTileLocation(self.node_state_i)
-        if index[1] == 2:
-            return False, self
-        else:
-            swap = new_node.node_state_i[index[0], index[1] + 1]
-            new_node.node_state_i[index[0], index[1] + 1] = new_node.node_state_i[index[0], index[1]]
-            new_node.node_state_i[index[0], index[1]] = swap
-            return True,self
+def actionMoveRight(node):
+    new_node = ListNode(np.zeros((3,3)), 0, 0)
+    new_node.node_state_i = node.node_state_i.copy()
+    index = BlankTileLocation(node.node_state_i)
+    if index[1] == 2:
+        return False, node
+    else:
+        swap = new_node.node_state_i[index[0], index[1] + 1]
+        new_node.node_state_i[index[0], index[1] + 1] = new_node.node_state_i[index[0], index[1]]
+        new_node.node_state_i[index[0], index[1]] = swap
+        return True,new_node
 
-    def actionMoveUp(self):
-        new_node = ListNode(np.zeros((3,3)), 0, 0)
-        new_node.node_state_i = self.node_state_i.copy()
-        index = self.BlankTileLocation(self.node_state_i)
-        if index[0] == 0:
-            return False, self
-        else:
-            swap = new_node.node_state_i[index[0] - 1, index[1]]
-            new_node.node_state_i[index[0] - 1, index[1]] = new_node.node_state_i[index[0], index[1]]
-            new_node.node_state_i[index[0], index[1]] = swap
-            return True, self
+def actionMoveUp(node):
+    new_node = ListNode(np.zeros((3,3)), 0, 0)
+    new_node.node_state_i = node.node_state_i.copy()
+    index = BlankTileLocation(node.node_state_i)
+    if index[0] == 0:
+        return False, node
+    else:
+        swap = new_node.node_state_i[index[0] - 1, index[1]]
+        new_node.node_state_i[index[0] - 1, index[1]] = new_node.node_state_i[index[0], index[1]]
+        new_node.node_state_i[index[0], index[1]] = swap
+        return True, new_node
 
-    def actionMoveDown(self):
-        new_node = ListNode(np.zeros((3,3)), 0, 0)
-        new_node.node_state_i = self.node_state_i.copy()
-        index = self.BlankTileLocation(self.node_state_i)
-        if index[0] == 2:
-            return False, self
-        else:
-            swap = new_node.node_state_i[index[0] + 1, index[1]]
-            new_node.node_state_i[index[0] + 1, index[1]] = new_node.node_state_i[index[0], index[1]]
-            new_node.node_state_i[index[0], index[1]] = swap
-            return True, self
+def actionMoveDown(node):
+    new_node = ListNode(np.zeros((3,3)), 0, 0)
+    new_node.node_state_i = node.node_state_i.copy()
+    index = BlankTileLocation(node.node_state_i)
+    if index[0] == 2:
+        return False, node
+    else:
+        swap = new_node.node_state_i[index[0] + 1, index[1]]
+        new_node.node_state_i[index[0] + 1, index[1]] = new_node.node_state_i[index[0], index[1]]
+        new_node.node_state_i[index[0], index[1]] = swap
+        return True, new_node
 
-    def addNode(self):
-        if self.node_state_i in states:
+def compare(mat1, mat2):
+    for i in range(0, len(mat1[0])):
+        for j in range(0, len(mat1[i])):
+            if mat1[i,j] == mat2[i,j]:
+                return False
+    return True
+
+
+def addNode(node):
+    for i in range(0,len(states)):
+        if not compare(node.node_state_i,states[i]):
             return False
-        else:
-            new_node = ListNode(np.zeros((3,3)), 0, 0)
-            new_node.node_state_i = self.node_state_i.copy()
-            new_node.node_index_i  = self.node_index_i
-            new_node.node_index_i += 1
-            new_node.parent_node_index_i = self.parent_node_index_i + 1
-            node_dictionary[new_node.node_index_i] = new_node
-            states.append(new_node.node_state_i)
-            nodes = open('Nodes.txt','w')
-            data = stateToData(new_node.node_state_i)
-            for i in range(0, len(data)):
-                nodes.write(str(int(data[i])) + " ")
-            nodes.write("\n")
-            nodes.close()
-            nodes_info = open('NodesInfo1.txt','w')
-            nodes_info.write(str(new_node.node_index_i) + " " + str(new_node.parent_node_index_i) + "\n")
-            nodes_info.close()
-        return True
+    else:
+        new_node = ListNode(np.zeros((3,3)), 0, 0)
+        new_node.node_state_i = node.node_state_i.copy()
+        new_node.node_index_i  = node.node_index_i
+        new_node.node_index_i += 1
+        new_node.parent_node_index_i = node.parent_node_index_i + 1
+        node_dictionary[new_node.node_index_i] = new_node
+        states.append(new_node.node_state_i)
+        nodes = open('Nodes.txt','w')
+        data = stateToData(new_node.node_state_i)
+        for i in range(0, len(data)):
+            nodes.write(str(int(data[i])) + " ")
+        nodes.write("\n")
+        nodes.close()
+        nodes_info = open('NodesInfo1.txt','w')
+        nodes_info.write(str(new_node.node_index_i) + " " + str(new_node.parent_node_index_i) + "\n")
+        nodes_info.close()
+    return True
 
-    def bruteForceSearch(self, goalNode):
-        node_list = []
-        node_list.append(self)
-        print(node_list)
+def bruteForceSearch(node, goalNode):
+    node_list = []
+    node_list.append(node)
+    index = 0
+    count = 0
+    intialCheck = node.node_state_i == goalNode
+    if intialCheck.all() == True:
+        print('Input node is goal node.Goal is reached')
+        return
+    while True:
         index = 0
-        count = 0
-        while True:
-            index = 0
-            statusLeft, new_node_Left = node_list[0].actionMoveLeft()
-            if statusLeft == True:
-                if(new_node_Left.addNode()):
-                    condition = new_node_Left.node_state_i == goalNode
-                    if condition.all() == True:
-                        print('Goal node is reached')
-                        break
-                    else:
-                        node_list.append(new_node_Left)
+        statusLeft, new_node_Left = actionMoveLeft(node_list[index])
+        if statusLeft == True:
+            print(addNode(new_node_Left))
+            if(addNode(new_node_Left)):
+                condition = new_node_Left.node_state_i == goalNode
+                if condition.all() == True:
+                    print('Goal node is reached')
+                    break
+                else:
+                    node_list.append(new_node_Left)
 
 
-            statusRight, new_node_Right = node_list[index].actionMoveRight()
-            if statusRight == True:
-                if(new_node_Right.addNode()):
-                    condition = new_node_Right.node_state_i == goalNode
-                    if condition.all() == True:
-                        print('Goal node is reached')
-                        break
-                    else:
-                        node_list.append(new_node_Right)
+        statusRight, new_node_Right = actionMoveRight(node_list[index])
+        if statusRight == True:
+            print(addNode(new_node_Left))
+            if(addNode(new_node_Right)):
+                condition = new_node_Right.node_state_i == goalNode
+                if condition.all() == True:
+                    print('Goal node is reached')
+                    break
+                else:
+                    node_list.append(new_node_Right)
 
-            statusUp, new_node_Up = node_list[index].actionMoveUp()
-            if statusUp == True:
-                if(new_node_Up.addNode()):
-                    condition = new_node_Up.node_state_i == goalNode
-                    if condition.all() == True:
-                        print('Goal node is reached')
-                        break
-                    else:
-                        node_list.append(new_node_Up)
+        statusUp, new_node_Up = actionMoveUp(node_list[index])
+        if statusUp == True:
+            print(addNode(new_node_Left))
+            if(addNode(new_node_Up)):
+                condition = new_node_Up.node_state_i == goalNode
+                if condition.all() == True:
+                    print('Goal node is reached')
+                    break
+                else:
+                    node_list.append(new_node_Up)
 
-            statusDown, new_node_Down = node_list[index].actionMoveDown()
-            if statusDown == True:
-                if(new_node_Down.addNode()):
-                    condition = new_node_Down.node_state_i == goalNode
-                    if condition.all() == True:
-                        print('Goal node is reached')
-                        break
-                    else:
-                        node_list.append(new_node_Down)
-            for i in range(0,len(node_list)):
-                print(node_list[i].node_state_i)
-            node_list.pop(index)
-            print(count)
-            count += 1
-            
-            
+        statusDown, new_node_Down = actionMoveDown(node_list[index])
+        if statusDown == True:
+            print(addNode(new_node_Left))
+            if(addNode(new_node_Down)):
+                condition = new_node_Down.node_state_i == goalNode
+                if condition.all() == True:
+                    print('Goal node is reached')
+                    break
+                else:
+                    node_list.append(new_node_Down)
+        node_list.pop(index)
+        # print(count)
+        # count += 1
+        
 
 def stateToData(state):
     data = []
@@ -157,9 +170,12 @@ def stateToData(state):
     return data
 
 
-
-input_node = ListNode(np.array([[1,2,3],[5,6,4],[0,8,7]]), 1,-1)
+def main():
+    print("Hello, World!")
+    if __name__== "__main__" :
+        main()
+input_node = ListNode(np.array([[1,0,3],[4,2,5],[7,8,6]]), 1,-1)
 states.append(input_node.node_state_i)
 node_dictionary = {}
 node_dictionary[input_node.node_index_i] = input_node  
-input_node.bruteForceSearch(goal)
+bruteForceSearch(input_node, goal)
