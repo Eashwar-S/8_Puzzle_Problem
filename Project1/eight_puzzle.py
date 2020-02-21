@@ -72,57 +72,82 @@ class ListNode:
             return True, self
 
     def addNode(self):
-        for array in states:
-            duplicate = array == self.node_state_i
-            if duplicate.all() == True:
-                return 
-            else:
-                if not self.node_state_i in states:
-                    new_node = ListNode(np.zeros((3,3)), 0, 0)
-                    new_node.node_state_i = self.node_state_i.copy()
-                    new_node.node_index_i  = self.node_index_i
-                    new_node.node_index_i += 1
-                    new_node.parent_node_index_i = self.parent_node_index_i
-                    node_dictionary[new_node.node_index_i] = new_node
-                    states.append(new_node.node_state_i)
-                    nodes = open('Nodes.txt','w')
-                    data = stateToData(new_node.node_state_i)
-                    for i in range(0, len(data)):
-                        nodes.write(str(int(data[i])) + " ")
-                    nodes.write("\n")
-                    nodes.close()
-                    nodes_info = open('NodesInfo1.txt','w')
-                    nodes_info.write(str(new_node.node_index_i) + " " + str(new_node.parent_node_index_i) + "\n")
-                    nodes_info.close()
+        if self.node_state_i in states:
+            return False
+        else:
+            new_node = ListNode(np.zeros((3,3)), 0, 0)
+            new_node.node_state_i = self.node_state_i.copy()
+            new_node.node_index_i  = self.node_index_i
+            new_node.node_index_i += 1
+            new_node.parent_node_index_i = self.parent_node_index_i + 1
+            node_dictionary[new_node.node_index_i] = new_node
+            states.append(new_node.node_state_i)
+            nodes = open('Nodes.txt','w')
+            data = stateToData(new_node.node_state_i)
+            for i in range(0, len(data)):
+                nodes.write(str(int(data[i])) + " ")
+            nodes.write("\n")
+            nodes.close()
+            nodes_info = open('NodesInfo1.txt','w')
+            nodes_info.write(str(new_node.node_index_i) + " " + str(new_node.parent_node_index_i) + "\n")
+            nodes_info.close()
+        return True
 
     def bruteForceSearch(self, goalNode):
-        self.parent_node_index_i = self.parent_node_index_i + 1
-        node = ListNode(np.zeros((3,3)), 0, 0)
-        node.node_state_i = self.node_state_i.copy()
-        node.node_index_i = self.node_index_i
-        node.parent_node_index_i = self.parent_node_index_i
-        condition = node.node_state_i == goalNode
-        while True: 
-            status, new_node = node.actionMoveLeft()
-            if status == True:
-                new_node.addNode()
+        node_list = []
+        node_list.append(self)
+        print(node_list)
+        index = 0
+        count = 0
+        while True:
+            index = 0
+            statusLeft, new_node_Left = node_list[0].actionMoveLeft()
+            if statusLeft == True:
+                if(new_node_Left.addNode()):
+                    condition = new_node_Left.node_state_i == goalNode
+                    if condition.all() == True:
+                        print('Goal node is reached')
+                        break
+                    else:
+                        node_list.append(new_node_Left)
 
-            status, new_node = node.actionMoveRight()
-            if status == True:
-                new_node.addNode()
 
-            status, new_node = node.actionMoveUp()
-            if status == True:
-                new_node.addNode()
+            statusRight, new_node_Right = node_list[index].actionMoveRight()
+            if statusRight == True:
+                if(new_node_Right.addNode()):
+                    condition = new_node_Right.node_state_i == goalNode
+                    if condition.all() == True:
+                        print('Goal node is reached')
+                        break
+                    else:
+                        node_list.append(new_node_Right)
 
-            status, new_node = node.actionMoveDown()
-            if status == True:
-                new_node.addNode()
-            counter += 1
-            print(counter)
+            statusUp, new_node_Up = node_list[index].actionMoveUp()
+            if statusUp == True:
+                if(new_node_Up.addNode()):
+                    condition = new_node_Up.node_state_i == goalNode
+                    if condition.all() == True:
+                        print('Goal node is reached')
+                        break
+                    else:
+                        node_list.append(new_node_Up)
+
+            statusDown, new_node_Down = node_list[index].actionMoveDown()
+            if statusDown == True:
+                if(new_node_Down.addNode()):
+                    condition = new_node_Down.node_state_i == goalNode
+                    if condition.all() == True:
+                        print('Goal node is reached')
+                        break
+                    else:
+                        node_list.append(new_node_Down)
+            for i in range(0,len(node_list)):
+                print(node_list[i].node_state_i)
+            node_list.pop(index)
+            print(count)
+            count += 1
             
-
-
+            
 
 def stateToData(state):
     data = []
