@@ -103,7 +103,7 @@ def solvabilityCheck(inputState):
 def nodeNotPresent(node):
     for i in range(0,len(states)):
         if compare(node.node_state_i,states[i]):
-             return False
+            return False
     return True
 
 
@@ -128,7 +128,6 @@ def bruteForceSearch(node, goalNode):
     node_list = []
     node_list.append(node)
     index = 0
-    count = 0
     parent = 1
     if solvabilityCheck(node.node_state_i):
         intialCheck = node.node_state_i == goalNode
@@ -137,13 +136,14 @@ def bruteForceSearch(node, goalNode):
             return
         while True:
             index = 0
+            new_node_Left = ListNode(np.zeros((3,3)), 0, 0)
             statusLeft, new_node_Left = actionMoveLeft(node_list[index])
             if statusLeft == True:
                 if(nodeNotPresent(new_node_Left)):
                     nodeindex.append(nodeindex[len(nodeindex)-1] + 1)
                     parentindex.append(parent)
-                    condition = new_node_Left.node_state_i == goalNode
-                    if condition.all() == True:
+                    condition = compare(new_node_Left.node_state_i, goalNode)
+                    if condition == True:
                         states.append(new_node_Left.node_state_i)
                         print('Goal node is reached')
                         break
@@ -151,57 +151,68 @@ def bruteForceSearch(node, goalNode):
                         addNode(new_node_Left, nodeindex[len(nodeindex)-1], parentindex[len(parentindex)-1])
                         node_list.append(new_node_Left)
 
-
+            new_node_Right = ListNode(np.zeros((3,3)), 0, 0)
             statusRight, new_node_Right = actionMoveRight(node_list[index])
             if statusRight == True:
                 if(nodeNotPresent(new_node_Right)):
                     nodeindex.append(nodeindex[len(nodeindex)-1] + 1)
                     parentindex.append(parent)
-                    condition = new_node_Right.node_state_i == goalNode
-                    if condition.all() == True:
+                    condition = compare(new_node_Right.node_state_i, goalNode)
+                    if condition == True:
                         states.append(new_node_Right.node_state_i)
                         print('Goal node is reached')
                         break
                     else:
-                        addNode(new_node_Left, nodeindex[len(nodeindex)-1], parentindex[len(parentindex)-1])
+                        addNode(new_node_Right, nodeindex[len(nodeindex)-1], parentindex[len(parentindex)-1])
                         node_list.append(new_node_Right)
 
+            new_node_Up = ListNode(np.zeros((3,3)), 0, 0)
             statusUp, new_node_Up = actionMoveUp(node_list[index])
             if statusUp == True:
                 if(nodeNotPresent(new_node_Up)):
                     nodeindex.append(nodeindex[len(nodeindex)-1] + 1)
                     parentindex.append(parent)
-                    condition = new_node_Up.node_state_i == goalNode
-                    if condition.all() == True:
+                    condition = compare(new_node_Up.node_state_i, goalNode)
+                    if condition == True:
                         states.append(new_node_Up.node_state_i)
                         print('Goal node is reached')
                         break
                     else:
-                        addNode(new_node_Left, nodeindex[len(nodeindex)-1], parentindex[len(parentindex)-1])
+                        addNode(new_node_Up, nodeindex[len(nodeindex)-1], parentindex[len(parentindex)-1])
                         node_list.append(new_node_Up)
 
+            new_node_Down = ListNode(np.zeros((3,3)), 0, 0)
             statusDown, new_node_Down = actionMoveDown(node_list[index])
             if statusDown == True:
                 if(nodeNotPresent(new_node_Down)):
                     nodeindex.append(nodeindex[len(nodeindex)-1] + 1)
                     parentindex.append(parent)
-                    condition = new_node_Down.node_state_i == goalNode
-                    if condition.all() == True:
+                    condition = compare(new_node_Down.node_state_i, goalNode)
+                    if condition == True:
                         states.append(new_node_Down.node_state_i)
                         print('Goal node is reached')
                         break
                     else:
-                        addNode(new_node_Left, nodeindex[len(nodeindex)-1], parentindex[len(parentindex)-1])
+                        addNode(new_node_Down, nodeindex[len(nodeindex)-1], parentindex[len(parentindex)-1])
                         node_list.append(new_node_Down)
             #parentindex.append(parentindex[len(parentindex)-1] +1)
             parent = parentindex[len(parentindex)-1] +1
             node_list.pop(index)
-            print(count)
-            count += 1
     else:
         print('Given puzzle is not solvable')
             
-        
+def backTracking(parent, child):
+    parentnode = parent[len(parent) - 1]
+    childnode = 0 
+    nodePath = []
+    nodePath.append(states[len(states) - 1])
+    while parentnode != 0:
+        childnode = child[parentnode - 1]
+        nodePath.append(states[childnode - 1])
+        parentnode =  parent[childnode - 1]
+
+    nodePath = nodePath[::-1]
+    return nodePath
 
 def stateToData(state):
     data = []
@@ -211,19 +222,16 @@ def stateToData(state):
     return data
 
 
-def main():
-    print("Hello, World!")
-    if __name__== "__main__" :
-        main()
+
 nodeindex = [1]
 parentindex = [0]
-input_node = ListNode(np.array([[1,0,3],[4,2,5],[7,8,6]]), 1,-1)
+input_node = ListNode(np.array([[3,8,0],[4,2,5],[7,1,6]]), 1,0)
 states.append(input_node.node_state_i)
 node_dictionary = {}
 node_dictionary[input_node.node_index_i] = input_node  
 bruteForceSearch(input_node, goal)
-print(node_dictionary[1].node_state_i)
-nodes = open("nodes.txt","w")
+
+nodes = open("Nodes.txt","w")
 for j in states:
     data = stateToData(j)
     for i in range(0, len(data)):
@@ -231,7 +239,16 @@ for j in states:
     nodes.write("\n")
 nodes.close()
 
-nodes_info = open('NodesInfo1.txt','w')
+nodes_info = open('NodesInfo.txt','w')
 for i in range(0,len(nodeindex)-1):
     nodes_info.writelines(str(nodeindex[i]) + " " + str(parentindex[i]) + "\n")
 nodes_info.close()
+
+nodePath = backTracking(parentindex, nodeindex)
+node_path = open('nodePath.txt','w')
+for i in nodePath:
+    data = stateToData(i)
+    for i in range(0, len(data)):
+        node_path.write(str(int(data[i])) + " ")
+    node_path.write("\n")
+node_path.close()
