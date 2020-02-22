@@ -1,24 +1,29 @@
+##############################################################
+# Project 1: 8 Puzzle Problem
+# Author: Eashwar Sathyamurthy
+##############################################################
 import numpy as np
 
-state = np.zeros((3,3))
-states = []
-counter = 1
-goal = np.array([[1,2,3],[4,5,6],[7,8,0]])
-
-
+##############################################################
+# ListNode : A Node class
+# @param : node_state_i: 3x3 array denoting present state.
+# @param : node_index_i: Index of the state.
+# @param : parent_node_index_i: Parent index of the current state.
+#############################################################
 class ListNode:
     def __init__(self, node_state_i, node_index_i, parent_node_index_i):
         self.node_state_i = node_state_i
         self.node_index_i = node_index_i
         self.parent_node_index_i = parent_node_index_i
     
-    def nodeParentIndex(self,increment):
-        self.parent_node_index_i = self.parent_node_index_i + increment
+######################################################
+#                Helper Functions
+######################################################
 
-    def nodeIndex(self,increment):
-        self.node_index_i = self.node_index_i + increment
-
-
+# Type: Function
+# @description: Locates the index of '0' in 3x3 array.
+# @param: 3x3 array
+# return: 1x2 vector containing index of '0'.
 def BlankTileLocation(state):
     index = []
     for i in range(0, len(state[0])):
@@ -29,6 +34,10 @@ def BlankTileLocation(state):
                 break
     return index
 
+# Type: Function
+# @description: Moves the '0' to the left if possible.
+# @param: node
+# return: status and new node after moving '0' to left
 def actionMoveLeft(node):
     new_node = ListNode(np.zeros((3,3)), 0, 0)
     new_node.node_state_i = node.node_state_i.copy()
@@ -36,12 +45,16 @@ def actionMoveLeft(node):
     if index[1] == 0:
         return False, node
     else:
+        #Swaping
         swap = new_node.node_state_i[index[0], index[1] - 1]
         new_node.node_state_i[index[0], index[1] - 1] = new_node.node_state_i[index[0], index[1]]
         new_node.node_state_i[index[0], index[1]] = swap
     return True, new_node
         
-
+# Type: Function
+# @description: Moves the '0' to the right if possible.
+# @param: node
+# return: status and new node after moving '0' to right.
 def actionMoveRight(node):
     new_node = ListNode(np.zeros((3,3)), 0, 0)
     new_node.node_state_i = node.node_state_i.copy()
@@ -54,6 +67,9 @@ def actionMoveRight(node):
         new_node.node_state_i[index[0], index[1]] = swap
     return True,new_node
 
+# Type: Function
+# @description: Moves the '0' Up if possible.
+# return: status and new node after moving '0' Up.
 def actionMoveUp(node):
     new_node = ListNode(np.zeros((3,3)), 0, 0)
     new_node.node_state_i = node.node_state_i.copy()
@@ -66,6 +82,9 @@ def actionMoveUp(node):
         new_node.node_state_i[index[0], index[1]] = swap
     return True, new_node
 
+# Type: Function
+# @description: Moves the '0' Down if possible.
+# return: status and new node after moving '0' Down.
 def actionMoveDown(node):
     new_node = ListNode(np.zeros((3,3)), 0, 0)
     new_node.node_state_i = node.node_state_i.copy()
@@ -78,6 +97,9 @@ def actionMoveDown(node):
         new_node.node_state_i[index[0], index[1]] = swap
     return True, new_node
 
+# Type: Function
+# @description: Compares two 3x3 matrices.
+# return: True if equal.
 def compare(mat1, mat2):
     for i in range(0, len(mat1[0])):
         for j in range(0, len(mat1[i])):
@@ -85,6 +107,10 @@ def compare(mat1, mat2):
                 return False
     return True
 
+# Type: Function
+# @description: Checks whether given puzzle is solvable or not.
+# @param : input 3x3 matrix
+# return: True or False.
 def solvabilityCheck(inputState):
     inversions = 0
     array = []
@@ -100,30 +126,34 @@ def solvabilityCheck(inputState):
         return True 
     return False 
 
+# Type: Function
+# @description: Checks whether 3x3 matrix is already present.
+# @param: node: node to be checked
+# return: True or False
 def nodeNotPresent(node):
     for i in range(0,len(states)):
         if compare(node.node_state_i,states[i]):
             return False
     return True
 
-
+# Type: Function
+# @description: Adds node to dictionary and new list
+# @param: node: current new node not in the node list.
+#         nodeindex: node index of the new node.
+#         parentindex: parent index of the new node.
+# return: status and new node after moving '0' Up.
 def addNode(node,nodeindex, parentindex):
     new_node = ListNode(np.zeros((3,3)), 0, 0)
     new_node.node_state_i = node.node_state_i.copy()
     new_node.node_index_i  = nodeindex
     new_node.parent_node_index_i = parentindex
-    node_dictionary[new_node.node_index_i] = new_node
     states.append(new_node.node_state_i)
-    # nodes = open("./nodes.txt","w")
-    # data = stateToData(new_node.node_state_i)
-    # for i in range(0, len(data)):
-    #     nodes.write(str(int(data[i])) + " ")
-    # nodes.write("\n")
-    # nodes.close()
-    # nodes_info = open('NodesInfo1.txt','w')
-    # nodes_info.writelines(str(nodeindex) + " " + str(parentindex))
-    # nodes_info.close()
 
+# Type: Function
+# @description: Finds all the possible 3x3 matrices till
+#               goal node is reached.
+# @param: node: input 3x3 matrix
+# @param: goal: final 3x3 matrix.
 def bruteForceSearch(node, goalNode):
     node_list = []
     node_list.append(node)
@@ -195,13 +225,19 @@ def bruteForceSearch(node, goalNode):
                     else:
                         addNode(new_node_Down, nodeindex[len(nodeindex)-1], parentindex[len(parentindex)-1])
                         node_list.append(new_node_Down)
-            #parentindex.append(parentindex[len(parentindex)-1] +1)
             parent = parentindex[len(parentindex)-1] +1
             node_list.pop(index)
     else:
         print('Given puzzle is not solvable')
-            
+
+# Type: Function
+# @description: Back tracks the way from the goal node
+#               to the input node.
+# @param: parent: list containing all the parent indexes.
+# @param: child: list containing all the node indexes.
+# @return: nodePath: Direct path for reaching input to goal state.
 def backTracking(parent, child):
+    # starting from the last parent node
     parentnode = parent[len(parent) - 1]
     childnode = 0 
     nodePath = []
@@ -210,10 +246,13 @@ def backTracking(parent, child):
         childnode = child[parentnode - 1]
         nodePath.append(states[childnode - 1])
         parentnode =  parent[childnode - 1]
-
     nodePath = nodePath[::-1]
     return nodePath
 
+# Type: Function
+# @description: Converts 3x3 matrix into row vector
+# @param: state: a 3x3 matrix
+# @param: data: a 1x9 row vector
 def stateToData(state):
     data = []
     for i in range(0, len(state)):
@@ -221,16 +260,29 @@ def stateToData(state):
             data.append(state[j,i])
     return data
 
-
-
+################################################################
+#                   Initializing
+################################################################
+# Contains all 3x3 matrices without repetition.
+states = []
+goal = np.array([[1,2,3],[4,5,6],[7,8,0]])
+# list containing all node indexes
 nodeindex = [1]
+# list containing all parent indexes
 parentindex = [0]
-input_node = ListNode(np.array([[3,8,0],[4,2,5],[7,1,6]]), 1,0)
+# input array for accepting values from the user
+input_array = np.zeros((3,3))
+print('Enter 9 elements of the puzzle:')
+for i in range(0,3):
+    for j in range(0,3):
+        input_array[i,j] = int(input())
+input_node = ListNode(input_array, 1,0)
 states.append(input_node.node_state_i)
-node_dictionary = {}
-node_dictionary[input_node.node_index_i] = input_node  
+
+# Performing brute force search
 bruteForceSearch(input_node, goal)
 
+# Writing all explored nodes in text file.
 nodes = open("Nodes.txt","w")
 for j in states:
     data = stateToData(j)
@@ -239,12 +291,16 @@ for j in states:
     nodes.write("\n")
 nodes.close()
 
+# Writing parent and node indexes in text file.
 nodes_info = open('NodesInfo.txt','w')
 for i in range(0,len(nodeindex)-1):
     nodes_info.writelines(str(nodeindex[i]) + " " + str(parentindex[i]) + "\n")
 nodes_info.close()
 
+# Calling the back tracking function
 nodePath = backTracking(parentindex, nodeindex)
+
+# Writing the node path in text file.
 node_path = open('nodePath.txt','w')
 for i in nodePath:
     data = stateToData(i)
