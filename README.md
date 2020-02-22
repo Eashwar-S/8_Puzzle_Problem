@@ -48,3 +48,6 @@ The program takes input in the form
 8 0 7
 ```
 Please don't press space after typing numbers. Only press enter as it may give errors.
+
+### Textfile generation
+Text files will be generated outside source code folder.
